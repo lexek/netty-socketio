@@ -15,6 +15,7 @@ public class SocketIoDecoder extends MessageToMessageDecoder<EngineIoPacket> {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, EngineIoPacket msg, List<Object> out) throws Exception {
+        logger.trace("{}", msg);
         if (msg.getType() == EngineIoPacketType.MESSAGE) {
             if (msg.getData() == null) {
                 logger.debug("MESSAGE packet has no data");

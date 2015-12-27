@@ -30,13 +30,20 @@ public class EngineIoProtocolHandler extends SimpleChannelInboundHandler<EngineI
                     throw new EngineIoMalformedPacketException("OPEN packet should have data");
                 }
                 if (msg instanceof EngineIoTextPacket) {
+                    logger.trace(((EngineIoTextPacket) msg).getData());
                     JsonNode handshakeData = objectMapper.readTree((String) msg.getData());
                     long pingTimeout = handshakeData.get("pingTimeout").asLong();
                     long pingInterval = handshakeData.asLong(pingTimeout / 2);
                     ctx
                         .pipeline()
                         .addBefore(ctx.name(), "idleHandler", new IdleStateHandler(pingTimeout, 0, 0, TimeUnit.MILLISECONDS));
-                    new EngineIoPinger(pingInterval, ctx.channel()).run();
+                    ctx.channel()
+                        .eventLoop()
+                        .schedule(
+                            new EngineIoPinger(pingInterval, ctx.channel()),
+                            pingInterval,
+                            TimeUnit.MILLISECONDS
+                        );
                 } else {
                     throw new EngineIoMalformedPacketException("OPEN packet shouldn't be binary");
                 }
@@ -81,6 +88,7 @@ public class EngineIoProtocolHandler extends SimpleChannelInboundHandler<EngineI
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt == IdleState.READER_IDLE) {
+            logger.debug("closing idle connection");
             ctx.close();
         }
     }
