@@ -10,17 +10,21 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 public class SocketIoEncoder extends MessageToMessageEncoder<SocketIoPacket> {
-    Logger logger = LoggerFactory.getLogger(SocketIoEncoder.class);
+    private final Logger logger = LoggerFactory.getLogger(SocketIoEncoder.class);
 
     @Override
     protected void encode(ChannelHandlerContext ctx, SocketIoPacket msg, List<Object> out) throws Exception {
         logger.trace("{}", msg);
         if (msg instanceof SocketIoEvent) {
-            if (((SocketIoEvent) msg).getData() instanceof String) {
-                String data = String.valueOf(msg.getType().ordinal()) +
-                    ((SocketIoEvent) msg).getId() +
-                    ((SocketIoEvent) msg).getData();
-                out.add(new EngineIoTextPacket(EngineIoPacketType.MESSAGE, data));
+            SocketIoEvent socketIoEvent = (SocketIoEvent) msg;
+            if (socketIoEvent.getData() instanceof String) {
+                StringBuilder data = new StringBuilder(String.valueOf(msg.getType().ordinal()));
+                Long id = socketIoEvent.getId();
+                if (id != null) {
+                    data.append(id);
+                }
+                data.append(socketIoEvent.getData());
+                out.add(new EngineIoTextPacket(EngineIoPacketType.MESSAGE, data.toString()));
             } else {
                 throw new UnsupportedOperationException("binary events are unsupported at this moment");
             }
