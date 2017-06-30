@@ -90,6 +90,8 @@ public class EngineIoProtocolHandler extends SimpleChannelInboundHandler<EngineI
         if (evt == IdleState.READER_IDLE) {
             logger.debug("closing idle connection");
             ctx.close();
+        } else {
+            ctx.fireUserEventTriggered(evt);
         }
     }
 }

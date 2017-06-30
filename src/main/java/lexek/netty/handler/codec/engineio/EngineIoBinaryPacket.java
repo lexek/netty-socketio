@@ -45,6 +45,16 @@ public class EngineIoBinaryPacket extends EngineIoPacket<ByteBuf> implements Byt
     }
 
     @Override
+    public ByteBufHolder touch() {
+        return null;
+    }
+
+    @Override
+    public ByteBufHolder touch(Object o) {
+        return null;
+    }
+
+    @Override
     public boolean release() {
         return getData() != null && getData().release();
     }
