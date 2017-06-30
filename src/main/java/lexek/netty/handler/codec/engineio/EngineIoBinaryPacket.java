@@ -24,6 +24,19 @@ public class EngineIoBinaryPacket extends EngineIoPacket<ByteBuf> implements Byt
     }
 
     @Override
+    public ByteBufHolder retainedDuplicate() {
+        if (getData() != null) {
+            getData().retainedDuplicate();
+        }
+        return this;
+    }
+
+    @Override
+    public ByteBufHolder replace(ByteBuf content) {
+        return new EngineIoBinaryPacket(getType(), content);
+    }
+
+    @Override
     public int refCnt() {
         return getData().refCnt();
     }
@@ -46,12 +59,18 @@ public class EngineIoBinaryPacket extends EngineIoPacket<ByteBuf> implements Byt
 
     @Override
     public ByteBufHolder touch() {
-        return null;
+        if (getData() != null) {
+            getData().touch();
+        }
+        return this;
     }
 
     @Override
-    public ByteBufHolder touch(Object o) {
-        return null;
+    public ByteBufHolder touch(Object hint) {
+        if (getData() != null) {
+            getData().touch(hint);
+        }
+        return this;
     }
 
     @Override
